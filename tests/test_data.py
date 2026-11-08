@@ -48,6 +48,33 @@ def test_random_with_prefix_len(ignore_input_distribution):
     print(ignore_input_distribution, random_data)
     assert random_data.shape == (10,3)
 
+
+def test_random_skips_negative_sampled_input_length():
+    class Tokenizer:
+        def encode(self, text):
+            return [ord(char) for char in text]
+
+        def decode(self, tokens):
+            return "".join(chr(token) for token in tokens)
+
+    class InputLengths:
+        def generate_distribution(self, size):
+            assert size == 2
+            return [-20, 3]
+
+    generator = data.Random(
+        prefix_str="",
+        prefill_distribution=InputLengths(),
+        token_distribution=distributions.UniformInt(65, 66),
+        output_token_distribution=distributions.Same(2),
+        tokenizer=Tokenizer(),
+        num_trials=10,
+        ignore_input_distribution=False,
+    )
+
+    assert generator.generate_data(2) == [("AAA", 3, 2)]
+
+
 def test_sharegpt():
     with open('sharegpt_test.json', 'w') as f:
         json.dump(SHAREGPT_DATA, f)

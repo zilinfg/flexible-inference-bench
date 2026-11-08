@@ -240,9 +240,9 @@ class Random(Data):
             input_data = [(self.prefix_str, prefix_len, output_tokens[i]) for i in range(size)]
         else:
             for i in range(size):
-                data = list(self.token_distribution.generate_distribution(lengths[i] + self.num_trials))
                 if lengths[i] - prefix_len < 0:  # skip when sampling length less than prefix
                     continue
+                data = list(self.token_distribution.generate_distribution(lengths[i] + self.num_trials))
                 prompt_end = get_data_end(data, self.tokenizer, 0, lengths[i] - prefix_len, self.num_trials)
                 achieved_len = prompt_end + prefix_len
 
